@@ -1,13 +1,17 @@
+/*
+Dakota Shapiro
+Dijkstra's Shortest Path Algorithm
+Assignment 5
+Professor Li Yang - CS 4310
+*/
+
 import java.io.*;
 import java.util.Scanner;
-
-import javax.naming.spi.DirStateFactory.Result;
-import javax.print.DocFlavor.READER;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.PriorityQueue;
 
@@ -24,14 +28,14 @@ public class Dijkstra {
         }
         result[source] = 0.0f;
 
-        PriorityQueue<QueueNode> queue = new PriorityQueue<QueueNode>(size);
+        PriorityQueue<QueueNode> queue = new PriorityQueue<QueueNode>();
         queue.offer(new QueueNode(source, 0.0f));
 
         while(queue.size() > 0){
             QueueNode current = queue.poll();
 
+            //The inner loop... Something isn't working right here.
             for(Node node : graph.get(current.GetID())){
-                System.out.println(node.GetID());
                 if(result[current.GetID()] + node.GetWeight() < result[node.GetID()]){
                     result[node.GetID()] = node.GetWeight() + result[current.GetID()];
                     queue.offer(new QueueNode(node.GetID(), result[node.GetID()]));
@@ -51,6 +55,7 @@ public class Dijkstra {
         ArrayList<ArrayList<Node>> graph = FileOps.ParseRoads(roads, roads_count);
 
         Dictionary<String, Integer> locations = FileOps.ParseLocations(places);
+        Dictionary<Integer, String> rev_locations = FileOps.ParseLocationsReverse(places);
 
         boolean escape = false;
 
@@ -75,30 +80,54 @@ public class Dijkstra {
 
             Float[] result = DijShortest(sFull, roads_count, graph);
 
-            List<Float> lresult = Arrays.asList(result);
+            List<Float> lresult = new LinkedList<Float>(Arrays.asList(result));
 
-
-            System.out.println(lresult.size());
-
-            // while(true){
-            //     float dist = Collections.min(lresult);
-            //     int ind = lresult.indexOf(dist);
-            //     System.out.println(String.format("%d - %f", ind, dist));
-            //     lresult.remove(ind);
-            //     if(ind == dFull){
-            //         break;
-            //     }
-                
-            // }
-
-            FileWriter writer = new FileWriter("dump.txt");
-            for(int i = 0; i < lresult.size(); i++){
-                if(lresult.get(i) < Float.MAX_VALUE){
-                    float dist = lresult.get(i);
-                    int ind = lresult.indexOf(lresult.get(i));
-                    writer.write(String.format("%d - %f\n", ind, dist));
+            System.out.println(String.format("Searching for %d (%s) to %d (%s)", sFull, source, dFull, destination));
+            int step = 0;
+            float prevWeight = 0;
+            int prevID = 0;
+            float total = 0;
+            while(true){
+                float dist = Collections.min(lresult);
+                int ind = lresult.indexOf(dist);
+                total += dist - prevWeight;
+                lresult.remove(ind);
+                if(step == 0){
+                    prevWeight = dist;
+                    prevID = ind;
+                    step++;
+                    continue;
                 }
+                String street = "";
+
+                for(Node node : graph.get(prevID)){
+                    if(node.id == ind){
+                        System.out.println(String.format("%s", node.street));
+                        street = node.street;
+                        break;
+                    }
+                }
+
+
+                System.out.println(String.format("%d: %d (%s) -> %d (%s), %s, %.2f mi.", step, prevID, rev_locations.get(prevID), ind, rev_locations.get(ind), street, dist - prevWeight ));
+                if(ind == dFull){
+                    break;
+                }
+                prevWeight = dist;
+                prevID = ind;
+                step++;
+                
             }
+            System.out.println(String.format("It takes %.2f miles from %d (%s) to %d (%s).", total, sFull, source, dFull, destination));
+
+            // FileWriter writer = new FileWriter("dump.txt");
+            // for(int i = 0; i < lresult.size(); i++){
+            //     if(lresult.get(i) < Float.MAX_VALUE){
+            //         float dist = lresult.get(i);
+            //         int ind = lresult.indexOf(lresult.get(i));
+            //         writer.write(String.format("%d - %f\n", ind, dist));
+            //     }
+            // }
 
             // FileWriter writer = new FileWriter("dump.txt");
             // for(int i = 0; i < graph.size(); i++){
@@ -106,8 +135,8 @@ public class Dijkstra {
             //         writer.write(String.format("%d - %d : %f\n", node.id, node.dest, node.weight));
             //     }
             // }
-            writer.close();
-
+            //writer.close();
+            user_input.close();
          }
     }
 }
