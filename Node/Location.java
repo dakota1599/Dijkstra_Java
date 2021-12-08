@@ -3,10 +3,12 @@ package Node;
 public class Location implements Comparable<Location>{
     public int id;
     public String name;
+    public float distance;
 
-    public Location(int id, String name){
+    public Location(int id, String name, float distance){
         this.id = id;
         this.name = name;
+        this.distance = distance;
     }
 
     @Override
