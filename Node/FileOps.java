@@ -28,7 +28,7 @@ public class FileOps {
                 else
                     street = "";
 
-                graph.get(src).add(new Node(src, weight, dest, street));
+                graph.get(src).add(new Node(dest, weight));
             }
             read.close();
             return graph;

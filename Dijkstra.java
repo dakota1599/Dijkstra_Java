@@ -1,8 +1,14 @@
 import java.io.*;
 import java.util.Scanner;
+
+import javax.naming.spi.DirStateFactory.Result;
+import javax.print.DocFlavor.READER;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.List;
 import java.util.PriorityQueue;
 
 import Node.*;
@@ -10,22 +16,25 @@ public class Dijkstra {
     
 
     public static Float [] DijShortest(int source, int size, ArrayList<ArrayList<Node>> graph){
+
         Float[] result = new Float[size];
 
         for(int i = 0; i < size; i++){
             result[i] = Float.MAX_VALUE;
         }
+        result[source] = 0.0f;
 
-        PriorityQueue<Node> queue = new PriorityQueue<Node>();
-        queue.add(new Node(source, 0, 0, ""));
+        PriorityQueue<QueueNode> queue = new PriorityQueue<QueueNode>(size);
+        queue.offer(new QueueNode(source, 0.0f));
 
         while(queue.size() > 0){
-            Node current = queue.poll();
+            QueueNode current = queue.poll();
 
-            for(Node node : graph.get(current.id)){
-                if(result[current.id] + node.weight < result[node.id]){
-                    result[node.id] = node.weight + result[current.id];
-                    queue.add(new Node(node.id, result[node.id], 0 ,""));
+            for(Node node : graph.get(current.GetID())){
+                System.out.println(node.GetID());
+                if(result[current.GetID()] + node.GetWeight() < result[node.GetID()]){
+                    result[node.GetID()] = node.GetWeight() + result[current.GetID()];
+                    queue.offer(new QueueNode(node.GetID(), result[node.GetID()]));
                 }
             }
         }
@@ -33,7 +42,7 @@ public class Dijkstra {
         return result;
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws IOException{
         File roads = new File("USRoads/Road.txt");
         File places = new File("USRoads/Place.txt");
         Scanner user_input = new Scanner(System.in);
@@ -66,10 +75,38 @@ public class Dijkstra {
 
             Float[] result = DijShortest(sFull, roads_count, graph);
 
-            for(int i = 0; i < roads_count; i++){
-                System.out.println(i + "             "
-                               + result[i]);
+            List<Float> lresult = Arrays.asList(result);
+
+
+            System.out.println(lresult.size());
+
+            // while(true){
+            //     float dist = Collections.min(lresult);
+            //     int ind = lresult.indexOf(dist);
+            //     System.out.println(String.format("%d - %f", ind, dist));
+            //     lresult.remove(ind);
+            //     if(ind == dFull){
+            //         break;
+            //     }
+                
+            // }
+
+            FileWriter writer = new FileWriter("dump.txt");
+            for(int i = 0; i < lresult.size(); i++){
+                if(lresult.get(i) < Float.MAX_VALUE){
+                    float dist = lresult.get(i);
+                    int ind = lresult.indexOf(lresult.get(i));
+                    writer.write(String.format("%d - %f\n", ind, dist));
+                }
             }
+
+            // FileWriter writer = new FileWriter("dump.txt");
+            // for(int i = 0; i < graph.size(); i++){
+            //     for(Node node : graph.get(i)){
+            //         writer.write(String.format("%d - %d : %f\n", node.id, node.dest, node.weight));
+            //     }
+            // }
+            writer.close();
 
          }
     }
