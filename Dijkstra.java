@@ -22,6 +22,7 @@ public class Dijkstra {
     public static Float [] DijShortest(int source, int size, ArrayList<ArrayList<Node>> graph){
 
         Float[] result = new Float[size];
+        Integer[] previous = new Integer[size];
 
         for(int i = 0; i < size; i++){
             result[i] = Float.MAX_VALUE;
@@ -38,6 +39,7 @@ public class Dijkstra {
             for(Node node : graph.get(current.GetID())){
                 if(result[current.GetID()] + node.GetWeight() < result[node.GetID()]){
                     result[node.GetID()] = node.GetWeight() + result[current.GetID()];
+                    previous[node.GetID()] = current.GetID();
                     queue.offer(new QueueNode(node.GetID(), result[node.GetID()]));
                 }
             }
