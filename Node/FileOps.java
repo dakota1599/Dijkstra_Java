@@ -8,13 +8,13 @@ import java.util.Scanner;
 public class FileOps {
     
     //Pareses the Roads file.
-    public static ArrayList<ArrayList<Node>> ParseRoads(File file, int size){
-        ArrayList<ArrayList<Node>> graph = new ArrayList<>();
+    public static ArrayList<Node> ParseRoads(File file, int size){
+        ArrayList<Node> nodes = new ArrayList<Node>();
         Scanner read;
 
-        //Creates the graph height.
+        //Creates the edges height.
         for(int i = 0; i < size; i++){
-            graph.add(new ArrayList<>());
+            nodes.add(new Node(i));
         }
 
         //Trys and looks for errors.
@@ -31,11 +31,26 @@ public class FileOps {
                     street = data[3];
                 else
                     street = "";
-                //Creates an edge on the graph.
-                graph.get(src).add(new Node(dest, weight, street));
+
+                Edge next = new Edge(dest, weight, street);
+                if(nodes.get(src).neighbors == null){
+                    nodes.get(src).neighbors = next;
+                }else{
+                    Edge current = nodes.get(src).neighbors;
+                    while(true){
+                        if(current.next == null){
+                            current.next = next;
+                            break;
+                        }
+                        current = current.next;
+                    }
+                }
+
+                //Creates an edge on the edges.
+                
             }
             read.close();
-            return graph;
+            return nodes;
         }
         //Error catching.
         catch(Exception ex){
