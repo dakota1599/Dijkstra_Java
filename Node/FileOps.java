@@ -12,7 +12,7 @@ public class FileOps {
         ArrayList<Node> nodes = new ArrayList<Node>();
         Scanner read;
 
-        //Creates the edges height.
+        //Initializes each node
         for(int i = 0; i < size; i++){
             nodes.add(new Node(i));
         }
@@ -20,7 +20,7 @@ public class FileOps {
         //Trys and looks for errors.
         try{
             read = new Scanner(file);
-            //Parsing through the file slowly creates the adjaceny lists.
+            //Parsing through the file slowly creates edge objects.
             while(read.hasNextLine()){
                 String[] data = read.nextLine().split(",");
                 int src = Integer.parseInt(data[0]);
@@ -32,6 +32,7 @@ public class FileOps {
                 else
                     street = "";
 
+                //Edge for the source.
                 Edge next = new Edge(dest, weight, street);
                 if(nodes.get(src).neighbors == null){
                     nodes.get(src).neighbors = next;
@@ -46,6 +47,7 @@ public class FileOps {
                     }
                 }
 
+                //Edge for the destination.
                 Edge back = new Edge(src, weight, street);
                 if(nodes.get(dest).neighbors == null){
                     nodes.get(dest).neighbors = back;
@@ -60,7 +62,6 @@ public class FileOps {
                     }
                 }
 
-                //Creates an edge on the edges.
                 
             }
             read.close();

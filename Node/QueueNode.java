@@ -1,5 +1,6 @@
 package Node;
 
+//This class is made especially for the PriorityQueue
 public class QueueNode {
     public Integer id;
     public Float weight;
