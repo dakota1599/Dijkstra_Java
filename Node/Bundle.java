@@ -1,9 +1,5 @@
 package Node;
 
-<<<<<<< HEAD
-public class Bundle {
-    
-=======
 import java.util.*;
 
 //A class for holding all path information.
@@ -28,5 +24,4 @@ public class Bundle {
             route.add(node);
         }
     }
->>>>>>> iteration2
 }

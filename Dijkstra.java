@@ -14,28 +14,6 @@ public class Dijkstra {
 
     public static Bundle DijShortest(int src, int size, ArrayList<Node> graph){
 
-<<<<<<< HEAD
-        Float[] result = new Float[size];
-        Integer[] previous = new Integer[size];
-
-        for(int i = 0; i < size; i++){
-            result[i] = Float.MAX_VALUE;
-        }
-        result[source] = 0.0f;
-
-        PriorityQueue<QueueNode> queue = new PriorityQueue<QueueNode>();
-        queue.offer(new QueueNode(source, 0.0f));
-
-        while(queue.size() > 0){
-            QueueNode current = queue.poll();
-
-            //The inner loop... Something isn't working right here.
-            for(Node node : graph.get(current.GetID())){
-                if(result[current.GetID()] + node.GetWeight() < result[node.GetID()]){
-                    result[node.GetID()] = node.GetWeight() + result[current.GetID()];
-                    previous[node.GetID()] = current.GetID();
-                    queue.offer(new QueueNode(node.GetID(), result[node.GetID()]));
-=======
         //Initializing a priority queue that uses a double comparator to compare the weight of the nodes inserted.
         PriorityQueue<QueueNode> queue = new PriorityQueue<>(Comparator.comparingDouble(cNode -> (double)cNode.weight));
         Bundle bundle = new Bundle(size);
@@ -69,7 +47,6 @@ public class Dijkstra {
                     queue.remove(nodes[current.id]);
                     nodes[current.id] = new QueueNode(current.id, total);
                     queue.add(nodes[current.id]);
->>>>>>> iteration2
                 }
                 writer.write(String.format("%.2f\n",current.weight));
                 current = current.next;
