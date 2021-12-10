@@ -11,7 +11,7 @@ public class Bundle {
     public Bundle(int size){
         this.distances = new Float[size];
         for(int i = 0; i < size; i++){
-            distances[i] = Float.MAX_VALUE;
+            this.distances[i] = Float.MAX_VALUE;
         }
 
         previousNodes = new int[size];

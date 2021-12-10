@@ -12,40 +12,52 @@ import Node.*;
 public class Dijkstra {
     
 
-    public static Bundle DijShortest(int src, int size, Graph graph){
+    public static Bundle DijShortest(int src, int size, ArrayList<Node> graph){
 
         //Initializing a priority queue that uses a double comparator to compare the weight of the nodes inserted.
-        PriorityQueue<Node> queue = new PriorityQueue<>(Comparator.comparingDouble(cNode -> cNode.weight));
+        PriorityQueue<QueueNode> queue = new PriorityQueue<>(Comparator.comparingDouble(cNode -> (double)cNode.weight));
         Bundle bundle = new Bundle(size);
-        queue.offer(new Node(src, 0));
-        //Distances for each node to source
-        bundle.distances[src] = 0.0f;
-        //The previous nodes to help build the paths
-        bundle.previousNodes[src] = -1;
-        //Checks for when minimum distance is found.
-        bundle.completed[src] = true;
-        
+        QueueNode[] nodes = new QueueNode[size];
 
-        while(!queue.isEmpty()){
-            Node cNode = queue.poll();
-
-            int id = cNode.id;
-            System.out.println(String.format("%d\n-----",id));
-            for(Edge edge: graph.edges.get(id)){
-                int edgeDest = edge.dest;
-                float edgeWeight = edge.weight;
-
-                if(!bundle.completed[edgeDest] && (bundle.distances[id]+edgeWeight) < bundle.distances[edgeDest]){
-                    System.out.println(edgeDest);
-                    bundle.distances[edgeDest] = bundle.distances[id] + edgeWeight;
-                    bundle.previousNodes[edgeDest] = id;
-                    queue.offer(new Node(edgeDest, bundle.distances[edgeDest]));
-                }
+        for(int i = 0; i < size; i++){
+            if( i != src){
+                nodes[i] = new QueueNode(i, Float.MAX_VALUE);
+                queue.add(nodes[i]);
+            }else{
+                nodes[i] = new QueueNode(i, 0.0f);
+                queue.add(nodes[i]);
             }
+        } 
 
-            bundle.completed[id] = true;
+        bundle.distances[src] = 0.0f;
+        bundle.previousNodes[src] = -1;
+        try{
+        FileWriter writer = new FileWriter("dump.txt");
+        
+        while(!queue.isEmpty()){
+            QueueNode cNode = queue.poll();
+            int id = cNode.id;
+            writer.write(String.format("%d\n-------\n",id));
+            Edge current = graph.get(id).neighbors;
+            while(current != null){
+                float total = bundle.distances[id] + current.weight;
+                if(total < bundle.distances[current.id]){
+                    bundle.distances[current.id] = total;
+                    bundle.previousNodes[current.id] = id;
+                    queue.remove(nodes[current.id]);
+                    nodes[current.id] = new QueueNode(current.id, total);
+                    queue.add(nodes[current.id]);
+                }
+                writer.write(String.format("%.2f\n",current.weight));
+                current = current.next;
+                
+                
+            }
         }
-
+        writer.close();
+    }catch(Exception ex){
+        System.out.println(ex);
+    }
         return bundle;
 
 
@@ -57,8 +69,7 @@ public class Dijkstra {
         Scanner userInput = new Scanner(System.in);
 
         int roads_count = FileOps.GetLineCount(roads);roads_count++;
-        ArrayList<Edge> edges = FileOps.ParseRoads(roads, roads_count);
-        Graph graph = new Graph(edges, edges.size());
+        ArrayList<Node> graph = FileOps.ParseRoads(roads, roads_count);
 
         Dictionary<String, Integer> locations = FileOps.ParseLocations(places);
         Dictionary<Integer, String> rev_locations = FileOps.ParseLocationsReverse(places);
@@ -66,12 +77,13 @@ public class Dijkstra {
         boolean escape = false;
 
         while(!escape){
-            System.out.println("Enter \"q\" to exit the program.");
-            System.out.print("Enter the Source Name: ");
-            String source = userInput.nextLine();
-            if(source.equals("q")) break;
-            System.out.print("\nEnter the Destination Name: ");
-            String destination = userInput.nextLine();
+            userInput.nextLine();
+            // System.out.println("Enter \"q\" to exit the program.");
+            // System.out.print("Enter the Source Name: ");
+            String source = "MIKALAMAZOO N";//userInput.nextLine();
+            // if(source.equals("q")) break;
+            // System.out.print("\nEnter the Destination Name: ");
+            String destination = "MIANN ARBOR C-N";//userInput.nextLine();
 
             int sFull = 0;
             int dFull = 0;
@@ -84,25 +96,59 @@ public class Dijkstra {
             }
             System.out.println(String.format("%d - %d", sFull, dFull));
 
-            Bundle bundle = DijShortest(sFull, graph.size, graph);
+            Bundle bundle = DijShortest(sFull, graph.size(), graph);
 
-            ArrayList<Integer> routes = new ArrayList<>();
-
-            FileWriter writer = new FileWriter("dump.txt");
-            for(int i = 0; i < roads_count; i++){
-                if(i != sFull && bundle.distances[i] != Float.MAX_VALUE){
-                    bundle.getRoute(i, routes);
-                    writer.write(String.format("Path(%d -> %d): Minimum cost = %.2f, Route= %s\n",sFull, i, bundle.distances[i], routes));
-                    routes.clear();
-                }
-            }
-            writer.close();
-
-            // int node = dFull;
             // FileWriter writer = new FileWriter("dump.txt");
-            // for(int val = 0; val < bundle.distances.length; val++){
-            //     writer.write(String.format("%d - %f\n",val, bundle.distances[val]));
+            // for(int i = 0; i < graph.size(); i++){
+            //     Node node = graph.get(i);
+
+            //     writer.write(String.format("\n%d\n",node.id));
+
+            //     Edge current = node.neighbors;
+            //     writer.write("Neighbors: ");
+            //     while(current != null){
+            //         writer.write(String.format("%d ",current.id));
+            //         current = current.next;
+            //     }
             // }
+            // writer.close();
+            // ArrayList<Integer> routes = new ArrayList<>();
+
+            
+            int node = dFull;
+            ArrayList<Integer> path = new ArrayList<>();
+            while(node >= 0){
+                System.out.println(String.format("%d - %.2f", node, bundle.distances[node]));
+                path.add(node);
+                node = bundle.previousNodes[node];
+            }
+
+            System.out.println(String.format("Searching from %d (%s) to %d (%s)",sFull, source, dFull, destination));
+
+            int count = 1;
+            for(int i = path.size()-1; i > 0; i--){
+                Node cNode = graph.get(path.get(i));
+                Edge current = cNode.neighbors;
+                while(current != null){
+                    if(current.id == path.get(i-1)){
+                        break;
+                    }
+                    current = current.next;
+                }
+
+                System.out.println(String.format("%d: %d(%s) -> %d(%s), %s, %.2f", count, cNode.id, rev_locations.get(cNode.id), current.id,rev_locations.get(current.id), current.street, current.weight));
+                count++;
+            }
+
+
+            node = dFull;
+            FileWriter writer = new FileWriter("dump.txt");
+            for(int val = 0; val < bundle.distances.length; val++){
+                if(bundle.distances[val] != Float.MAX_VALUE){
+                    writer.write(String.format("%d - %f Prev: %d\n",val, bundle.distances[val], bundle.previousNodes[val]));
+                }
+                
+            }
 
             // for(int route : routes){
             //     System.out.println(route);
@@ -113,7 +159,7 @@ public class Dijkstra {
             // for(int i = 0; i < bundle.previousNodes.length; i++){
             //     writer.write(String.format("%d\n", bundle.previousNodes[i]));
             // }
-            // writer.close();
+             writer.close();
 
             
             

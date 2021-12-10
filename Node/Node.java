@@ -8,11 +8,14 @@ import java.util.ArrayList;
 public class Node{
     public Integer id;
    // public int dest;
-    public Float weight;
+    public Edge neighbors = null;
 
-    public Node(int id, float weight){
+    public Node(int id){
         this.id = id;
-        this.weight = weight;
+    }
+    public Node(int id, Edge edge){
+        this.id = id;
+        this.neighbors = edge;
     }
 
 }
