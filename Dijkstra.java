@@ -63,7 +63,7 @@ public class Dijkstra {
 
     }
 
-    public static void main(String[] args) throws IOException{
+    public static void main(String[] args) throws Exception{
         File roads = new File("USRoads/Road.txt");
         File places = new File("USRoads/Place.txt");
         Scanner userInput = new Scanner(System.in);
@@ -77,13 +77,13 @@ public class Dijkstra {
         boolean escape = false;
 
         while(!escape){
-            userInput.nextLine();
-            // System.out.println("Enter \"q\" to exit the program.");
-            // System.out.print("Enter the Source Name: ");
-            String source = "MIKALAMAZOO N";//userInput.nextLine();
-            // if(source.equals("q")) break;
-            // System.out.print("\nEnter the Destination Name: ");
-            String destination = "MIANN ARBOR C-N";//userInput.nextLine();
+            System.out.println("Enter \"q\" to exit the program.");
+            System.out.print("Enter the Source Name: ");
+            String source = userInput.nextLine();
+            if(source.toLowerCase().equals("q")) break;
+            System.out.print("\nEnter the Destination Name: ");
+            String destination = userInput.nextLine();
+            if(destination.toLowerCase().equals("q")) break;
 
             int sFull = 0;
             int dFull = 0;
@@ -97,35 +97,23 @@ public class Dijkstra {
             System.out.println(String.format("%d - %d", sFull, dFull));
 
             Bundle bundle = DijShortest(sFull, graph.size(), graph);
-
-            // FileWriter writer = new FileWriter("dump.txt");
-            // for(int i = 0; i < graph.size(); i++){
-            //     Node node = graph.get(i);
-
-            //     writer.write(String.format("\n%d\n",node.id));
-
-            //     Edge current = node.neighbors;
-            //     writer.write("Neighbors: ");
-            //     while(current != null){
-            //         writer.write(String.format("%d ",current.id));
-            //         current = current.next;
-            //     }
-            // }
-            // writer.close();
-            // ArrayList<Integer> routes = new ArrayList<>();
-
+            
             
             int node = dFull;
             ArrayList<Integer> path = new ArrayList<>();
+            int count = 1;
             while(node >= 0){
-                System.out.println(String.format("%d - %.2f", node, bundle.distances[node]));
                 path.add(node);
                 node = bundle.previousNodes[node];
+                if(count >= bundle.distances.length){
+                    throw new FailureToFindException();
+                }
+                count++;
             }
 
             System.out.println(String.format("Searching from %d (%s) to %d (%s)",sFull, source, dFull, destination));
 
-            int count = 1;
+            count = 1;
             for(int i = path.size()-1; i > 0; i--){
                 Node cNode = graph.get(path.get(i));
                 Edge current = cNode.neighbors;
@@ -136,56 +124,12 @@ public class Dijkstra {
                     current = current.next;
                 }
 
-                System.out.println(String.format("%d: %d(%s) -> %d(%s), %s, %.2f", count, cNode.id, rev_locations.get(cNode.id), current.id,rev_locations.get(current.id), current.street, current.weight));
+                System.out.println(String.format("%d: %d(%s) -> %d(%s), %s, %.2f mi.", count, cNode.id, rev_locations.get(cNode.id), current.id,rev_locations.get(current.id), current.street, current.weight));
                 count++;
             }
 
+            System.out.println(String.format("It takes %.2f miles from %d (%s) to %d (%s).", bundle.distances[dFull], sFull, source, dFull, destination));
 
-            node = dFull;
-            FileWriter writer = new FileWriter("dump.txt");
-            for(int val = 0; val < bundle.distances.length; val++){
-                if(bundle.distances[val] != Float.MAX_VALUE){
-                    writer.write(String.format("%d - %f Prev: %d\n",val, bundle.distances[val], bundle.previousNodes[val]));
-                }
-                
-            }
-
-            // for(int route : routes){
-            //     System.out.println(route);
-            // }
-
-            //getRoute(dFull, bundle.previousNodes, routes);
-            // FileWriter writer = new FileWriter("dump.txt");
-            // for(int i = 0; i < bundle.previousNodes.length; i++){
-            //     writer.write(String.format("%d\n", bundle.previousNodes[i]));
-            // }
-             writer.close();
-
-            
-            
-            
-
-            
-                
-            
-
-            // FileWriter writer = new FileWriter("dump.txt");
-            // for(int i = 0; i < lresult.size(); i++){
-            //     if(lresult.get(i) < Float.MAX_VALUE){
-            //         float dist = lresult.get(i);
-            //         int ind = lresult.indexOf(lresult.get(i));
-            //         writer.write(String.format("%d - %f\n", ind, dist));
-            //     }
-            // }
-
-            // FileWriter writer = new FileWriter("dump.txt");
-            // for(int i = 0; i < graph.size(); i++){
-            //     for(Node node : graph.get(i)){
-            //         writer.write(String.format("%d - %d : %f\n", node.id, node.dest, node.weight));
-            //     }
-            // }
-            //writer.close();
-            //userInput.close();
          }
     }
 }
