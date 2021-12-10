@@ -46,6 +46,20 @@ public class FileOps {
                     }
                 }
 
+                Edge back = new Edge(src, weight, street);
+                if(nodes.get(dest).neighbors == null){
+                    nodes.get(dest).neighbors = back;
+                }else{
+                    Edge current = nodes.get(dest).neighbors;
+                    while(true){
+                        if(current.next == null){
+                            current.next = back;
+                            break;
+                        }
+                        current = current.next;
+                    }
+                }
+
                 //Creates an edge on the edges.
                 
             }
